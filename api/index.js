@@ -1,20 +1,34 @@
-// MP3 ডাউনলোড বা লিঙ্ক জেনারেট করার রাউট
-app.get('/api/download-mp3', async (req, res) => {
-    const { videoId, lang } = req.query;
+// MP3 ডাউনলোড লিংক পাওয়ার রাউট
+app.get('/api/get-mp3/:videoId', async (req, res) => {
+    const videoId = req.params.videoId;
+    const quality = req.query.quality || 'low';
     
     try {
-        // এখানে আপনার RapidAPI এর মূল ডাউনলোড এপিআই এন্ডপয়েন্ট বসাতে হবে
-        // যেমন: https://youtube-mp3-audio-video-downloader.p.rapidapi.com/download/...
-        
-        // সাময়িকভাবে একটি রেসপন্স বা ডাউনলোড লিঙ্কে রিডায়রেক্ট করার ব্যবস্থা:
-        res.json({ 
-            status: "success", 
-            message: "ডাউনলোড লিঙ্ক তৈরি হয়েছে", 
-            videoId, 
-            lang 
+        const response = await axios.get(`https://youtube-mp3-audio-video-downloader.p.rapidapi.com/get_mp3_download_link/${videoId}?quality=${quality}&wait_until_the_file_is_ready=false`, {
+            headers: {
+                'x-rapidapi-key': 'b3ad11e41cmshb18121f061df58ep1b5c61jsnd7a63dda9d56',
+                'x-rapidapi-host': 'youtube-mp3-audio-video-downloader.p.rapidapi.com'
+            }
         });
-        
+        res.json(response.data);
     } catch (error) {
-        res.status(500).json({ error: 'ডাউনলোড করতে সমস্যা হয়েছে', details: error.message });
+        res.status(500).json({ error: 'MP3 লিংক আনতে সমস্যা হয়েছে', details: error.message });
+    }
+});
+
+// M4A ডাউনলোড লিংক পাওয়ার রাউট
+app.get('/api/get-m4a/:videoId', async (req, res) => {
+    const videoId = req.params.videoId;
+    
+    try {
+        const response = await axios.get(`https://youtube-mp3-audio-video-downloader.p.rapidapi.com/get_m4a_download_link/${videoId}`, {
+            headers: {
+                'x-rapidapi-key': 'b3ad11e41cmshb18121f061df58ep1b5c61jsnd7a63dda9d56',
+                'x-rapidapi-host': 'youtube-mp3-audio-video-downloader.p.rapidapi.com'
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: 'M4A লিংক আনতে সমস্যা হয়েছে', details: error.message });
     }
 });
