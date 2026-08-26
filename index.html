@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Language List Downloader</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8">
+        
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-14 h-14 bg-red-600/20 text-red-500 rounded-full mb-3 text-2xl">
+                <i class="fa-brands fa-youtube"></i>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight">YouTube Language Finder</h1>
+            <p class="text-slate-400 text-sm mt-1">ইউটিউব ভিডিওর আইডি বা সম্পূর্ণ লিঙ্ক দিয়ে ভাষা তালিকা সংগ্রহ করুন</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="space-y-4">
+            <div>
+                <label for="videoInput" class="block text-sm font-medium text-slate-300 mb-2">ভিডিও লিংক বা আইডি</label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="videoInput" 
+                        placeholder="যেমন: DXVHmGoCTco বা https://youtu.be/..." 
+                        class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-red-500 transition">
+                    <button onclick="fetchData()" 
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-600/30">
+                        <i class="fa-solid fa-magnifying-glass"></i> সার্চ করুন
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="mt-8">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-slate-400">এপিআই রেসপন্স (API Response):</span>
+                <button onclick="copyResult()" id="copyBtn" class="text-xs text-red-400 hover:text-red-300 transition hidden items-center gap-1 cursor-pointer">
+                    <i class="fa-regular fa-copy"></i> কপি করুন
+                </button>
+            </div>
+            <div class="relative">
+                <pre id="result" class="bg-slate-900 border border-slate-700 rounded-xl p-4 text-xs md:text-sm text-slate-300 overflow-x-auto max-h-80 select-all">এখানে আপনার API রেসপন্স দেখাবে...</pre>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-xs text-slate-500 border-t border-slate-700/50 pt-4">
+            Powered by RapidAPI & Node.js Backend
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        async function fetchData() {
+            let input = document.getElementById('videoInput').value.trim();
+            if (!input) {
+                alert('দয়া করে একটি ভিডিও আইডি বা লিঙ্ক দিন!');
+                return;
+            }
+
+            // ইউটিউব লিঙ্ক থেকে ভিডিও আইডি এক্সট্রাক্ট করার লজিক
+            let videoId = input;
+            if (input.includes('youtube.com') || input.includes('youtu.be')) {
+                try {
+                    const url = new URL(input);
+                    videoId = url.searchParams.get('v') || input.split('/').pop().split('?')[0];
+                } catch (e) {
+                    videoId = input.split('/').pop().split('?')[0];
+                }
+            }
+
+            const resultPre = document.getElementById('result');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            resultPre.textContent = 'লোড হচ্ছে, দয়া করে অপেক্ষা করুন...';
+            copyBtn.classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/get-languages/${videoId}`);
+                const data = await response.json();
+                
+                const formattedJson = JSON.stringify(data, null, 4);
+                resultPre.textContent = formattedJson;
+                
+                if (response.ok) {
+                    copyBtn.classList.remove('hidden');
+                }
+            } catch (error) {
+                resultPre.textContent = 'ত্রুটি ঘটেছে: ' + error.message;
+            }
+        }
+
+        function copyResult() {
+            const text = document.getElementById('result').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.innerHTML = '<i class="fa-solid fa-check text-green-400"></i> কপি করা হয়েছে!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> কপি করুন';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
