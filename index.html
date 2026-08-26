@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ফায়ার এবং এলইডি গ্লো অ্যানিমেশন */
         @keyframes fireGlow {
             0%, 100% { 
                 text-shadow: 0 0 10px #ff0000, 0 0 20px #ff3300, 0 0 30px #ff4500, 0 0 40px #ff6347;
@@ -35,7 +34,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* কোড মোড স্ক্যানলাইন ইফেক্ট */
         .scanlines {
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 4px, 6px 100%;
@@ -56,7 +54,6 @@
             <div class="inline-flex items-center justify-center w-14 h-14 bg-red-950/80 text-red-500 rounded-2xl mb-2 text-2xl border border-red-600/50 shadow-inner">
                 <i class="fa-solid fa-terminal animate-pulse"></i>
             </div>
-            <!-- LED বোর্ড ও আগুন অ্যানিমেশন লেখা -->
             <h1 class="text-xl md:text-2xl font-black tracking-wider fire-animation uppercase">
                 Cyber Team Help
             </h1>
@@ -74,7 +71,7 @@
                 </label>
                 <div class="flex flex-col gap-2">
                     <input type="text" id="videoInput" 
-                        placeholder="e.g. rVQ2i8q2Y9A or URL..." 
+                        value="https://youtu.be/XOqdUwaq_TE?si=gtKB3vQdxOHWZAoC" 
                         class="w-full bg-zinc-950 border border-red-900/50 rounded-xl px-4 py-3 text-red-200 text-sm focus:outline-none focus:border-red-500 transition shadow-inner">
                     <button onclick="fetchData()" 
                         class="w-full bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-900/50 border border-red-500/40 uppercase tracking-wider text-sm">
@@ -117,13 +114,15 @@
             }
 
             let videoId = input;
-            if (input.includes('youtube.com') || input.includes('youtu.be')) {
-                try {
+            try {
+                if (input.includes('youtu.be/')) {
+                    videoId = input.split('youtu.be/')[1].split('?')[0].split('/')[0];
+                } else if (input.includes('youtube.com')) {
                     const url = new URL(input);
                     videoId = url.searchParams.get('v') || input.split('/').pop().split('?')[0];
-                } catch (e) {
-                    videoId = input.split('/').pop().split('?')[0];
                 }
+            } catch (e) {
+                videoId = input.split('/').pop().split('?')[0];
             }
 
             const resultDiv = document.getElementById('result');
@@ -131,7 +130,14 @@
 
             try {
                 const response = await fetch(`/api/get-languages/${videoId}`);
-                const data = await response.json();
+                const responseText = await response.text();
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    throw new Error("সার্ভার থেকে সঠিক ডেটা আসেনি (Invalid Response)");
+                }
                 
                 let html = `<div class="space-y-3 w-full text-left">`;
                 
@@ -162,7 +168,7 @@
                 resultDiv.innerHTML = html;
 
             } catch (error) {
-                resultDiv.innerHTML = `<span class="text-red-500 font-bold">[ERROR] Target extraction failed: ${error.message}</span>`;
+                resultDiv.innerHTML = `<span class="text-red-500 font-bold">[ERROR] ${error.message}</span>`;
             }
         }
 
@@ -173,7 +179,14 @@
             try {
                 const endpoint = type === 'mp3' ? `/api/get-mp3/${videoId}` : `/api/get-m4a/${videoId}`;
                 const response = await fetch(endpoint);
-                const data = await response.json();
+                const responseText = await response.text();
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error("ডাউনলোড লিংক আনতে ব্যর্থ");
+                }
 
                 let link = data.link || data.download_url || data.url || JSON.stringify(data);
                 
