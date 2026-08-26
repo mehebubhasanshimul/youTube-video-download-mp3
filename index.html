@@ -1,66 +1,191 @@
-<!-- আগের জাভাস্ক্রিপ্ট স্ক্রিপ্ট ট্যাগের ভেতরের কোডটি এভাবে আপডেট করুন -->
-<script>
-    async function fetchData() {
-        let input = document.getElementById('videoInput').value.trim();
-        if (!input) {
-            alert('দয়া করে একটি ভিডিও আইডি বা লিঙ্ক দিন!');
-            return;
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Team Help - YouTube Downloader</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ফায়ার এবং এলইডি গ্লো অ্যানিমেশন */
+        @keyframes fireGlow {
+            0%, 100% { 
+                text-shadow: 0 0 10px #ff0000, 0 0 20px #ff3300, 0 0 30px #ff4500, 0 0 40px #ff6347;
+                color: #ff3333;
+            }
+            50% { 
+                text-shadow: 0 0 15px #ff1a1a, 0 0 25px #ff5722, 0 0 35px #ff7043, 0 0 50px #ff8a65;
+                color: #ff6666;
+            }
         }
 
-        let videoId = input;
-        if (input.includes('youtube.com') || input.includes('youtu.be')) {
+        @keyframes borderPulse {
+            0%, 100% { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+            50% { border-color: rgba(255, 0, 0, 1); box-shadow: 0 0 25px rgba(255, 0, 0, 0.6); }
+        }
+
+        .fire-animation {
+            animation: fireGlow 1.8s infinite alternate;
+        }
+
+        .cyber-card {
+            animation: borderPulse 3s infinite;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        /* কোড মোড স্ক্যানলাইন ইফেক্ট */
+        .scanlines {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+        }
+    </style>
+</head>
+<body class="bg-black text-slate-100 min-h-screen flex items-center justify-center p-3 scanlines font-mono">
+
+    <!-- মোবাইল অ্যাপ ফ্রেম কন্টেইনার -->
+    <div class="w-full max-w-md cyber-card border-2 rounded-3xl shadow-2xl p-5 md:p-6 relative overflow-hidden">
+        
+        <!-- ব্যাকগ্রাউন্ড রেড গ্লো ইফেক্ট -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-red-900/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Header / LED Board Style -->
+        <div class="text-center mb-5 relative z-10">
+            <div class="inline-flex items-center justify-center w-14 h-14 bg-red-950/80 text-red-500 rounded-2xl mb-2 text-2xl border border-red-600/50 shadow-inner">
+                <i class="fa-solid fa-terminal animate-pulse"></i>
+            </div>
+            <!-- LED বোর্ড ও আগুন অ্যানিমেশন লেখা -->
+            <h1 class="text-xl md:text-2xl font-black tracking-wider fire-animation uppercase">
+                Cyber Team Help
+            </h1>
+            <div class="flex items-center justify-center gap-2 mt-1">
+                <span class="inline-block w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                <p class="text-red-400 text-xs font-bold tracking-widest uppercase">SHADOW JOKER // CODE MODE</p>
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="space-y-3 relative z-10">
+            <div>
+                <label for="videoInput" class="block text-xs font-semibold text-red-400 mb-1.5 uppercase tracking-wider">
+                    <i class="fa-solid fa-link"></i> YouTube Link / ID:
+                </label>
+                <div class="flex flex-col gap-2">
+                    <input type="text" id="videoInput" 
+                        placeholder="e.g. rVQ2i8q2Y9A or URL..." 
+                        class="w-full bg-zinc-950 border border-red-900/50 rounded-xl px-4 py-3 text-red-200 text-sm focus:outline-none focus:border-red-500 transition shadow-inner">
+                    <button onclick="fetchData()" 
+                        class="w-full bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-900/50 border border-red-500/40 uppercase tracking-wider text-sm">
+                        <i class="fa-solid fa-fire"></i> Execute Code & Extract
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="mt-5 relative z-10">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-semibold text-zinc-400 uppercase tracking-widest">[ Output Console ]</span>
+            </div>
+            <div id="result" class="bg-zinc-950 border border-red-950 rounded-xl p-3 text-xs text-red-300 min-h-[140px] flex flex-col justify-center items-center text-center shadow-inner">
+                <span class="text-zinc-600">Waiting for target input...</span>
+            </div>
+        </div>
+
+        <!-- Telegram Contact Footer -->
+        <div class="mt-6 pt-3 border-t border-red-950 text-center relative z-10">
+            <a href="https://t.me/SHADOW_JOKER_CTH" target="_blank" 
+               class="inline-flex items-center gap-2 text-xs text-red-400 hover:text-red-300 font-bold transition bg-red-950/40 px-3 py-1.5 rounded-full border border-red-800/40 shadow-sm hover:border-red-600">
+                <i class="fa-brands fa-telegram text-sm"></i> Telegram: @SHADOW_JOKER_CTH
+            </a>
+            <div class="text-[10px] text-zinc-600 mt-2 tracking-widest">
+                SEC-OPS // SHADOW JOKER ARCHITECTURE
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        async function fetchData() {
+            let input = document.getElementById('videoInput').value.trim();
+            if (!input) {
+                alert('দয়া করে একটি ভিডিও আইডি বা লিঙ্ক প্রদান করুন!');
+                return;
+            }
+
+            let videoId = input;
+            if (input.includes('youtube.com') || input.includes('youtu.be')) {
+                try {
+                    const url = new URL(input);
+                    videoId = url.searchParams.get('v') || input.split('/').pop().split('?')[0];
+                } catch (e) {
+                    videoId = input.split('/').pop().split('?')[0];
+                }
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<span class="text-red-500 animate-pulse font-bold">[!] DECRYPTING & FETCHING DATA...</span>';
+
             try {
-                const url = new URL(input);
-                videoId = url.searchParams.get('v') || input.split('/').pop().split('?')[0];
-            } catch (e) {
-                videoId = input.split('/').pop().split('?')[0];
-            }
-        }
-
-        const resultDiv = document.getElementById('result');
-        const copyBtn = document.getElementById('copyBtn');
-        
-        resultDiv.innerHTML = '<p class="text-slate-400">লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</p>';
-        copyBtn.classList.add('hidden');
-
-        try {
-            const response = await fetch(`/api/get-languages/${videoId}`);
-            const data = await response.json();
-            
-            if (Array.isArray(data) && data.length > 0) {
-                let html = `
-                    <div class="space-y-4">
+                const response = await fetch(`/api/get-languages/${videoId}`);
+                const data = await response.json();
+                
+                let html = `<div class="space-y-3 w-full text-left">`;
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    html += `
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-2">ভাষা নির্বাচন করুন:</label>
-                            <select id="selectedLang" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-red-500 transition">
-                `;
-                
-                data.forEach(lang => {
-                    html += `<option value="${lang.id}">${lang.name} (${lang.id})</option>`;
-                });
-                
-                html += `</select></div>
-                         <button onclick="downloadMp3('${videoId}')" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-green-600/30">
-                            <i class="fa-solid fa-download"></i> MP3 ডাউনলোড করুন
-                         </button>
-                        </div>`;
-                
-                resultDiv.innerHTML = html;
-            } else {
-                resultDiv.innerHTML = `<pre class="text-slate-300">${JSON.stringify(data, null, 4)}</pre>`;
-            }
-            
-        } catch (error) {
-            resultDiv.textContent = 'ত্রুটি ঘটেছে: ' + error.message;
-        }
-    }
+                            <label class="block text-[11px] font-bold text-red-400 mb-1 uppercase">Select Language:</label>
+                            <select id="selectedLang" class="w-full bg-zinc-900 border border-red-900 rounded-lg px-3 py-2 text-red-200 text-xs focus:outline-none focus:border-red-500">
+                    `;
+                    data.forEach(lang => {
+                        html += `<option value="${lang.id}">${lang.name} (${lang.id})</option>`;
+                    });
+                    html += `</select></div>`;
+                }
 
-    function downloadMp3(videoId) {
-        const langId = document.getElementById('selectedLang').value;
-        // এখানে আপনি ডাউনলোডের জন্য ব্যাকএন্ড রাউটে রিকোয়েস্ট পাঠাতে পারেন অথবা সরাসরি API লিঙ্কে রিডায়রেক্ট করতে পারেন
-        alert(`ভিডিও আইডি: ${videoId} এবং ভাষা: ${langId} এর জন্য MP3 ডাউনলোড প্রসেস শুরু হচ্ছে...`);
-        
-        // উদাহরণস্বরূপ ব্যাকএন্ডে ডাউনলোড এপিআই কল করার কোড:
-        window.location.href = `/api/download-mp3?videoId=${videoId}&lang=${langId}`;
-    }
-</script>
+                html += `
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="getDownloadLink('mp3', '${videoId}')" class="bg-zinc-900 hover:bg-red-950 text-red-400 hover:text-red-200 text-xs font-bold py-2 px-2 rounded-lg transition border border-red-900 flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-file-audio"></i> MP3 Link
+                        </button>
+                        <button onclick="getDownloadLink('m4a', '${videoId}')" class="bg-zinc-900 hover:bg-red-950 text-red-400 hover:text-red-200 text-xs font-bold py-2 px-2 rounded-lg transition border border-red-900 flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-music"></i> M4A Link
+                        </button>
+                    </div>
+                    <div id="downloadResult" class="mt-1 text-[11px] text-zinc-400 break-all"></div>
+                </div>`;
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="text-red-500 font-bold">[ERROR] Target extraction failed: ${error.message}</span>`;
+            }
+        }
+
+        async function getDownloadLink(type, videoId) {
+            const downloadResult = document.getElementById('downloadResult');
+            downloadResult.innerHTML = '<span class="text-yellow-500 animate-pulse">[+] Generating secure download stream...</span>';
+
+            try {
+                const endpoint = type === 'mp3' ? `/api/get-mp3/${videoId}` : `/api/get-m4a/${videoId}`;
+                const response = await fetch(endpoint);
+                const data = await response.json();
+
+                let link = data.link || data.download_url || data.url || JSON.stringify(data);
+                
+                if (typeof link === 'string' && link.startsWith('http')) {
+                    downloadResult.innerHTML = `[SUCCESS] <a href="${link}" target="_blank" class="text-green-400 underline font-bold hover:text-green-300">CLICK TO DOWNLOAD STREAM</a>`;
+                } else {
+                    downloadResult.innerHTML = `<pre class="bg-black p-2 rounded mt-1 overflow-x-auto text-[10px] text-red-400 border border-red-950">${JSON.stringify(data, null, 2)}</pre>`;
+                }
+            } catch (err) {
+                downloadResult.innerHTML = `<span class="text-red-500">[FAILED] Stream routing error.</span>`;
+            }
+        }
+    </script>
+</body>
+</html>
